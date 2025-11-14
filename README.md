@@ -1,6 +1,8 @@
 # 📦 Sistema de Bodega — Arquitectura Orientada a Servicios (SOA)
 
-![La Bodega](public/la-bodega.png)
+<p align="center">
+  <img src="public/la-bodega.png" alt="La Bodega" width="200"/>
+</p>
 
 Sistema integral de gestión para bodegas desarrollado con **Next.js 15**, **React 19**, **TypeScript** y **Supabase**, implementando una arquitectura orientada a servicios (SOA) para garantizar modularidad, escalabilidad y mantenibilidad.
 
