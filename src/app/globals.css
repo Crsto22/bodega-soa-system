@@ -1,26 +1,15 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+	/* Colores del sistema proporcionados por el cliente */
+	--brand-primary: #d63715; /* rojo/primario */
+	--brand-accent: #fb9b0e; /* naranja/acento */
+	--brand-dark: #084a1e; /* verde/oscuro */
+
+	/* Compuestos y utilidades */
+	--bg-muted: #f8fafb;
+	--text-muted: #6b7280;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+@import "tailwindcss";
+@plugin "daisyui";
