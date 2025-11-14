@@ -16,6 +16,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "La Bodega - Sistema de Gestión",
   description: "Sistema de gestión para bodega",
+  icons: {
+    icon: "/la-bodega.png",
+    shortcut: "/la-bodega.png",
+    apple: "/la-bodega.png",
+  },
 };
 
 export default function RootLayout({
