@@ -220,6 +220,55 @@ export default function ProductosPage() {
             </div>
           ) : (
             <>
+              {/* Estadísticas */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Total Productos</p>
+                      <p className="text-3xl font-bold text-gray-800">{productos.length}</p>
+                    </div>
+                    <div className="p-3 rounded-full" style={{ backgroundColor: 'var(--brand-accent-light)' }}>
+                      <svg className="h-8 w-8" style={{ color: 'var(--brand-accent)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Stock Bajo</p>
+                      <p className="text-3xl font-bold text-red-600">
+                        {productos.filter(p => p.stock < 10).length}
+                      </p>
+                    </div>
+                    <div className="p-3 rounded-full bg-red-100">
+                      <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Valor Inventario</p>
+                      <p className="text-3xl font-bold" style={{ color: 'var(--brand-dark)' }}>
+                        S/ {productos.reduce((sum, p) => sum + (p.precio_compra * p.stock), 0).toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="p-3 rounded-full" style={{ backgroundColor: 'var(--brand-dark-light)' }}>
+                      <svg className="h-8 w-8" style={{ color: 'var(--brand-dark)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Tabla de productos */}
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="overflow-x-auto">
@@ -324,55 +373,6 @@ export default function ProductosPage() {
                   )}
                 </tbody>
               </table>
-            </div>
-          </div>
-
-          {/* Estadísticas */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Productos</p>
-                  <p className="text-3xl font-bold text-gray-800">{productos.length}</p>
-                </div>
-                <div className="p-3 rounded-full" style={{ backgroundColor: 'var(--brand-accent-light)' }}>
-                  <svg className="h-8 w-8" style={{ color: 'var(--brand-accent)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Stock Bajo</p>
-                  <p className="text-3xl font-bold text-red-600">
-                    {productos.filter(p => p.stock < 10).length}
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-red-100">
-                  <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Valor Inventario</p>
-                  <p className="text-3xl font-bold" style={{ color: 'var(--brand-dark)' }}>
-                    S/ {productos.reduce((sum, p) => sum + (p.precio_compra * p.stock), 0).toFixed(2)}
-                  </p>
-                </div>
-                <div className="p-3 rounded-full" style={{ backgroundColor: 'var(--brand-dark-light)' }}>
-                  <svg className="h-8 w-8" style={{ color: 'var(--brand-dark)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
             </div>
           </div>
             </>

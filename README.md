@@ -24,13 +24,22 @@ Sistema integral de gestión para bodegas desarrollado con **Next.js 15**, **Rea
 
 ---
 
-## 🏗️ Arquitectura Orientada a Servicios (SOA)
+## 🏗️ Arquitectura Orientada a Servicios (SOA) + Repository Pattern
 
-El proyecto implementa SOA para separar la lógica de negocio en servicios independientes y reutilizables:
+El proyecto implementa **SOA con Repository Pattern** para una arquitectura de 3 capas clara y mantenible:
 
 ```
 src/
-├── services/              # Capa de Servicios (SOA)
+├── repositories/          # Capa de Acceso a Datos (Repository Pattern)
+│   ├── ventaRepository.ts        # Acceso a datos de ventas
+│   ├── detalleVentaRepository.ts # Acceso a detalles de ventas
+│   ├── compraRepository.ts       # Acceso a datos de compras
+│   ├── detalleCompraRepository.ts # Acceso a detalles de compras
+│   ├── productRepository.ts      # Acceso a datos de productos
+│   ├── clientRepository.ts       # Acceso a datos de clientes
+│   └── proveedorRepository.ts    # Acceso a datos de proveedores
+│
+├── services/              # Capa de Lógica de Negocio (SOA)
 │   ├── authService.ts     # Autenticación y gestión de sesiones
 │   ├── ventaService.ts    # Lógica de negocio de ventas
 │   ├── compraService.ts   # Lógica de negocio de compras
@@ -38,18 +47,80 @@ src/
 │   ├── clientService.ts   # Gestión de clientes
 │   ├── proveedorService.ts # Gestión de proveedores
 │   └── userService.ts     # Administración de usuarios
+│
 ├── app/                   # Capa de Presentación (Next.js)
 ├── components/            # Componentes reutilizables
 └── types/                 # Definiciones TypeScript
 ```
 
-### 🔄 Principios SOA Implementados
+### 🔄 Principios SOA + Repository Pattern Implementados
 
-1. **Separación de Responsabilidades**: Cada servicio maneja un dominio específico
-2. **Reutilización**: Los servicios son independientes y pueden ser consumidos por múltiples componentes
-3. **Bajo Acoplamiento**: Los componentes UI no acceden directamente a la base de datos
-4. **Alto Cohesión**: Cada servicio agrupa operaciones relacionadas
-5. **Encapsulación**: La lógica de negocio está oculta detrás de interfaces claras
+1. **Separación de Responsabilidades en 3 Capas:**
+   - **UI**: Solo presentación y manejo de eventos
+   - **Services**: Solo lógica de negocio (validaciones, cálculos, orquestación)
+   - **Repositories**: Solo acceso a datos (queries SQL)
+
+2. **Reutilización**: Los servicios y repositories son independientes y reutilizables
+
+3. **Bajo Acoplamiento**: 
+   - UI no conoce la base de datos
+   - Services no conocen los detalles de las queries
+   - Repositories encapsulan el acceso a datos
+
+4. **Alto Cohesión**: Cada servicio/repository agrupa operaciones relacionadas
+
+5. **Encapsulación**: La lógica está oculta detrás de interfaces claras
+
+6. **Flexibilidad**: Fácil cambiar de base de datos sin afectar servicios
+
+### 📊 Flujo de Datos en 3 Capas
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                         UI (Next.js)                         │
+│  - Componentes de presentación                               │
+│  - Manejo de eventos del usuario                             │
+└────────────────────────┬─────────────────────────────────────┘
+                         │
+                         │ llama a
+                         ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Services (Lógica de Negocio)              │
+│  - Validaciones de datos                                     │
+│  - Cálculos y transformaciones                               │
+│  - Orquestación de múltiples operaciones                     │
+└────────────────────────┬─────────────────────────────────────┘
+                         │
+                         │ usa
+                         ▼
+┌──────────────────────────────────────────────────────────────┐
+│                  Repositories (Acceso a Datos)               │
+│  - Queries SQL a Supabase                                    │
+│  - CRUD básico (create, read, update, delete)                │
+│  - Manipulación directa de tablas                            │
+└────────────────────────┬─────────────────────────────────────┘
+                         │
+                         │ consulta
+                         ▼
+┌──────────────────────────────────────────────────────────────┐
+│                  Supabase (PostgreSQL)                       │
+│  - Base de datos relacional                                  │
+│  - Autenticación y autorización                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Ejemplo de flujo para crear una venta:**
+
+1. **UI** llama a `ventaService.crearVenta(datos)`
+2. **Service** ejecuta:
+   - Valida que haya productos
+   - Verifica stock usando `productRepository.findById()`
+   - Calcula el total de la venta
+   - Crea la venta usando `ventaRepository.create()`
+   - Registra detalles usando `detalleVentaRepository.createMany()`
+   - Actualiza stock usando `productRepository.decrementarStock()`
+3. **Repositories** ejecutan las queries SQL en Supabase
+4. **Resultado** se retorna a la UI para mostrar al usuario
 
 ---
 
@@ -71,15 +142,39 @@ src/
   - Row Level Security (RLS)
   - Real-time subscriptions
 
-### Servicios SOA
+### Arquitectura de Código
+
+#### Repository (Acceso a Datos)
 ```typescript
-// Ejemplo de arquitectura de servicio
-export async function crearVenta(datos: DatosVenta) {
-  // 1. Validación de datos
-  // 2. Creación de venta
-  // 3. Registro de detalles
-  // 4. Actualización de stock
-  // 5. Retorno de resultado
+// productRepository.ts
+export class ProductRepository {
+  async findById(id: number): Promise<Producto | null> {
+    const { data } = await supabase
+      .from('productos')
+      .select('*')
+      .eq('id_producto', id)
+      .single();
+    return data;
+  }
+
+  async decrementarStock(id: number, cantidad: number): Promise<void> {
+    const producto = await this.findById(id);
+    }
+  }
+
+  // 3. LÓGICA DE NEGOCIO: Calcular total
+  const total = datos.productos.reduce(...)
+
+  // 4. USA REPOSITORY: Crear venta
+  const venta = await ventaRepository.create({...});
+  await detalleVentaRepository.createMany(detalles);
+  
+  // 5. USA REPOSITORY: Actualizar stock
+  for (const producto of datos.productos) {
+    await productRepository.decrementarStock(producto.id_producto, producto.cantidad);
+  }
+
+  return { success: true, data: venta };
 }
 ```
 
@@ -130,17 +225,17 @@ export async function crearVenta(datos: DatosVenta) {
 
 ### 👨‍💼 ADMIN
 Acceso completo a todos los módulos:
-- ✅ Ventas y Compras
-- ✅ Clientes y Proveedores
-- ✅ Productos
-- ✅ Usuarios (gestión completa)
-- ✅ Historial de ventas y compras
+-  Ventas y Compras
+-  Clientes y Proveedores
+-  Productos
+-  Usuarios (gestión completa)
+-  Historial de ventas y compras
 
 ### 👤 VENDEDOR
 Acceso limitado a operaciones diarias:
-- ✅ Ventas
-- ✅ Clientes (consulta y registro)
-- ✅ Productos (solo consulta)
+-  Ventas
+-  Clientes (consulta y registro)
+-  Productos (solo consulta)
 - ❌ Compras
 - ❌ Proveedores
 - ❌ Usuarios
@@ -250,7 +345,15 @@ bodega/
 │   │   ├── Navbar.tsx       # Barra de navegación
 │   │   ├── ProtectedRoute.tsx # Control de acceso
 │   │   └── ToastProvider.tsx  # Proveedor de notificaciones
-│   ├── services/            # Servicios SOA
+│   ├── repositories/        # Repositories (Acceso a Datos)
+│   │   ├── ventaRepository.ts
+│   │   ├── detalleVentaRepository.ts
+│   │   ├── compraRepository.ts
+│   │   ├── detalleCompraRepository.ts
+│   │   ├── productRepository.ts
+│   │   ├── clientRepository.ts
+│   │   └── proveedorRepository.ts
+│   ├── services/            # Servicios SOA (Lógica de Negocio)
 │   │   ├── authService.ts
 │   │   ├── ventaService.ts
 │   │   ├── compraService.ts
@@ -291,12 +394,12 @@ bodega/
 ## 🔒 Seguridad
 
 ### Implementaciones de Seguridad
-- ✅ **Autenticación**: Supabase Auth con JWT
-- ✅ **Autorización**: Control de roles en frontend y backend
-- ✅ **RLS**: Row Level Security en Supabase
-- ✅ **Protected Routes**: Verificación de autenticación en cada ruta
-- ✅ **Service Role Key**: Solo para operaciones administrativas
-- ✅ **LocalStorage**: Caché seguro de perfil de usuario
+-  **Autenticación**: Supabase Auth con JWT
+-  **Autorización**: Control de roles en frontend y backend
+-  **RLS**: Row Level Security en Supabase
+-  **Protected Routes**: Verificación de autenticación en cada ruta
+-  **Service Role Key**: Solo para operaciones administrativas
+-  **LocalStorage**: Caché seguro de perfil de usuario
 
 ---
 

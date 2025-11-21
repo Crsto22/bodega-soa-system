@@ -1,127 +1,98 @@
-import { supabase } from "@/lib/supabaseClient";
+// REFACTORIZADO: Ahora usa Repository Pattern
+import { clientRepository } from "@/repositories/clientRepository";
 import { Cliente } from "@/types/database";
 
 // Obtener todos los clientes
 export async function getClientes(): Promise<{ success: boolean; data?: Cliente[]; error?: string }> {
   try {
-    const { data, error } = await supabase
-      .from('clientes')
-      .select('*')
-      .order('id_cliente', { ascending: true });
-
-    if (error) {
-      console.error('Error obteniendo clientes:', error);
-      return { success: false, error: error.message };
-    }
-
-    return { success: true, data: data || [] };
-  } catch (error) {
-    console.error('Error inesperado:', error);
-    return { success: false, error: 'Error inesperado al obtener clientes' };
+    // USA REPOSITORY
+    const clientes = await clientRepository.findAll();
+    return { success: true, data: clientes };
+  } catch (error: any) {
+    console.error('Error obteniendo clientes:', error);
+    return { success: false, error: error.message || 'Error inesperado al obtener clientes' };
   }
 }
 
 // Obtener un cliente por ID
 export async function getClienteById(id: number): Promise<{ success: boolean; data?: Cliente; error?: string }> {
   try {
-    const { data, error } = await supabase
-      .from('clientes')
-      .select('*')
-      .eq('id_cliente', id)
-      .single();
+    // USA REPOSITORY
+    const cliente = await clientRepository.findById(id);
 
-    if (error) {
-      console.error('Error obteniendo cliente:', error);
-      return { success: false, error: error.message };
+    if (!cliente) {
+      return { success: false, error: 'Cliente no encontrado' };
     }
 
-    return { success: true, data };
-  } catch (error) {
-    console.error('Error inesperado:', error);
-    return { success: false, error: 'Error inesperado al obtener cliente' };
+    return { success: true, data: cliente };
+  } catch (error: any) {
+    console.error('Error obteniendo cliente:', error);
+    return { success: false, error: error.message || 'Error inesperado al obtener cliente' };
   }
 }
 
 // Crear un nuevo cliente
 export async function createCliente(cliente: Omit<Cliente, 'id_cliente' | 'fecha_registro'>): Promise<{ success: boolean; data?: Cliente; error?: string }> {
   try {
-    const { data, error } = await supabase
-      .from('clientes')
-      .insert([cliente])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error creando cliente:', error);
-      return { success: false, error: error.message };
+    // LÓGICA DE NEGOCIO: Validaciones
+    if (!cliente.nombre || cliente.nombre.trim() === '') {
+      return { success: false, error: 'El nombre del cliente es obligatorio' };
     }
 
-    return { success: true, data };
-  } catch (error) {
-    console.error('Error inesperado:', error);
-    return { success: false, error: 'Error inesperado al crear cliente' };
+    if (!cliente.dni || cliente.dni.trim() === '') {
+      return { success: false, error: 'El DNI del cliente es obligatorio' };
+    }
+
+    // USA REPOSITORY
+    const nuevoCliente = await clientRepository.create(cliente);
+    return { success: true, data: nuevoCliente };
+  } catch (error: any) {
+    console.error('Error creando cliente:', error);
+    return { success: false, error: error.message || 'Error inesperado al crear cliente' };
   }
 }
 
 // Actualizar un cliente
 export async function updateCliente(id: number, cliente: Partial<Omit<Cliente, 'id_cliente' | 'fecha_registro'>>): Promise<{ success: boolean; data?: Cliente; error?: string }> {
   try {
-    const { data, error } = await supabase
-      .from('clientes')
-      .update(cliente)
-      .eq('id_cliente', id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error actualizando cliente:', error);
-      return { success: false, error: error.message };
+    // LÓGICA DE NEGOCIO: Validaciones
+    if (cliente.nombre !== undefined && cliente.nombre.trim() === '') {
+      return { success: false, error: 'El nombre no puede estar vacío' };
     }
 
-    return { success: true, data };
-  } catch (error) {
-    console.error('Error inesperado:', error);
-    return { success: false, error: 'Error inesperado al actualizar cliente' };
+    if (cliente.dni !== undefined && cliente.dni.trim() === '') {
+      return { success: false, error: 'El DNI no puede estar vacío' };
+    }
+
+    // USA REPOSITORY
+    const clienteActualizado = await clientRepository.update(id, cliente);
+    return { success: true, data: clienteActualizado };
+  } catch (error: any) {
+    console.error('Error actualizando cliente:', error);
+    return { success: false, error: error.message || 'Error inesperado al actualizar cliente' };
   }
 }
 
 // Eliminar un cliente
 export async function deleteCliente(id: number): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase
-      .from('clientes')
-      .delete()
-      .eq('id_cliente', id);
-
-    if (error) {
-      console.error('Error eliminando cliente:', error);
-      return { success: false, error: error.message };
-    }
-
+    // USA REPOSITORY
+    await clientRepository.delete(id);
     return { success: true };
-  } catch (error) {
-    console.error('Error inesperado:', error);
-    return { success: false, error: 'Error inesperado al eliminar cliente' };
+  } catch (error: any) {
+    console.error('Error eliminando cliente:', error);
+    return { success: false, error: error.message || 'Error inesperado al eliminar cliente' };
   }
 }
 
 // Buscar clientes por término
 export async function searchClientes(searchTerm: string): Promise<{ success: boolean; data?: Cliente[]; error?: string }> {
   try {
-    const { data, error } = await supabase
-      .from('clientes')
-      .select('*')
-      .or(`nombre.ilike.%${searchTerm}%,dni.ilike.%${searchTerm}%,telefono.ilike.%${searchTerm}%,correo.ilike.%${searchTerm}%`)
-      .order('id_cliente', { ascending: true });
-
-    if (error) {
-      console.error('Error buscando clientes:', error);
-      return { success: false, error: error.message };
-    }
-
-    return { success: true, data: data || [] };
-  } catch (error) {
-    console.error('Error inesperado:', error);
-    return { success: false, error: 'Error inesperado al buscar clientes' };
+    // USA REPOSITORY
+    const clientes = await clientRepository.search(searchTerm);
+    return { success: true, data: clientes };
+  } catch (error: any) {
+    console.error('Error buscando clientes:', error);
+    return { success: false, error: error.message || 'Error inesperado al buscar clientes' };
   }
 }
