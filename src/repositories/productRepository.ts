@@ -8,11 +8,12 @@ import { Producto } from "@/types/database";
 
 export interface InsertProducto {
     nombre: string;
-    categoria: string;
-    marca: string;
+    categoria?: string;
+    marca?: string;
     precio_compra: number;
     precio_venta: number;
     stock: number;
+    unidad_medida?: string;
 }
 
 export class ProductRepository {

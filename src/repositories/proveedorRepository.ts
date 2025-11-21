@@ -8,10 +8,9 @@ import { Proveedor } from "@/types/database";
 
 export interface InsertProveedor {
     nombre: string;
-    ruc: string;
+    ruc?: string;
     telefono?: string;
-    direccion?: string;
-    email?: string;
+    correo?: string;
 }
 
 export class ProveedorRepository {

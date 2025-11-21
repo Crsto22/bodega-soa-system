@@ -8,10 +8,9 @@ import { Cliente } from "@/types/database";
 
 export interface InsertCliente {
     nombre: string;
-    dni: string;
+    dni?: string;
     telefono?: string;
-    direccion?: string;
-    email?: string;
+    correo?: string;
 }
 
 export class ClientRepository {

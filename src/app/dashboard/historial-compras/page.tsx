@@ -11,9 +11,9 @@ import Link from "next/link";
 interface Compra {
   id_compra: number;
   id_proveedor?: number;
-  id_usuario: string;
-  fecha_compra: string;
-  total: number;
+  id_usuario?: string; // UUID - optional to match database type
+  fecha_compra?: string;
+  total?: number;
   proveedor?: {
     nombre: string;
     ruc?: string;
@@ -25,7 +25,8 @@ interface Compra {
 }
 
 interface DetalleCompra {
-  id_detalle_compra: number;
+  id_detalle: number; // Match database schema
+  id_compra: number;
   id_producto: number;
   cantidad: number;
   precio_compra: number;
@@ -138,7 +139,7 @@ export default function HistorialComprasPage() {
 
   // Calcular estadísticas
   const totalCompras = compras.length;
-  const totalGastado = compras.reduce((sum, c) => sum + c.total, 0);
+  const totalGastado = compras.reduce((sum, c) => sum + (c.total ?? 0), 0);
   const promedioCompra = totalCompras > 0 ? totalGastado / totalCompras : 0;
 
   return (
@@ -291,12 +292,12 @@ export default function HistorialComprasPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             <div className="flex items-center gap-1">
                               <Calendar className="h-4 w-4 text-gray-400" />
-                              {new Date(compra.fecha_compra).toLocaleDateString('es-ES')}
+                              {compra.fecha_compra ? new Date(compra.fecha_compra).toLocaleDateString('es-ES') : 'N/A'}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-lg font-bold" style={{ color: 'var(--brand-accent)' }}>
-                              S/ {compra.total.toFixed(2)}
+                              S/ {(compra.total ?? 0).toFixed(2)}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

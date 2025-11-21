@@ -39,10 +39,6 @@ export async function createCliente(cliente: Omit<Cliente, 'id_cliente' | 'fecha
       return { success: false, error: 'El nombre del cliente es obligatorio' };
     }
 
-    if (!cliente.dni || cliente.dni.trim() === '') {
-      return { success: false, error: 'El DNI del cliente es obligatorio' };
-    }
-
     // USA REPOSITORY
     const nuevoCliente = await clientRepository.create(cliente);
     return { success: true, data: nuevoCliente };
@@ -58,10 +54,6 @@ export async function updateCliente(id: number, cliente: Partial<Omit<Cliente, '
     // LÓGICA DE NEGOCIO: Validaciones
     if (cliente.nombre !== undefined && cliente.nombre.trim() === '') {
       return { success: false, error: 'El nombre no puede estar vacío' };
-    }
-
-    if (cliente.dni !== undefined && cliente.dni.trim() === '') {
-      return { success: false, error: 'El DNI no puede estar vacío' };
     }
 
     // USA REPOSITORY
